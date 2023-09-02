@@ -1,0 +1,132 @@
+.choose {
+    margin-top: 85px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+
+    &__svg {
+        path {
+            transition: .1s linear;
+        }
+    }
+
+    &__left {
+        position: relative;
+        margin-right: 10px;
+
+        &-img {
+            max-width: 540px;
+            width: 100%;
+            border-radius: 25px;
+            overflow: hidden;
+            height: 547px;
+
+            img {
+                object-fit: cover;
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+
+        &-autor {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+
+            width: 200px;
+            height: 60px;
+            background: #15101B;
+            border-radius: 30px;
+            display: flex;
+            padding-left: 7px;
+            align-items: center;
+        }
+
+        &-artstudio {
+            transition: .15s linear;
+            margin-left: 13px;
+            font-size: 20px;
+            line-height: 24px; 
+
+            &:hover {
+                color: #b66eff;
+            }
+        }
+
+        &-likes {
+            cursor: pointer;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            bottom: 18px;
+            left: 24px;
+        }
+
+        &-count {
+            margin-top: 3px;
+            font-size: 28px;
+            line-height: 36px;
+            margin-left: 8px;
+            color: #9e9ea7;
+            transition: .1s linear;
+        }
+    }
+}
+
+.choose__right {
+    max-width: 650px;
+    width: 100%;
+    position: relative;
+
+    &-title {
+        font-weight: 700;
+        font-size: 48px;
+        line-height: 58px;
+
+        background: linear-gradient(90deg, #95BAFD 0%, #D86AE0 50.52%, #9B23F6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+    }
+
+    &-text {
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 29px;
+        margin-top: 34px;
+        margin-bottom: 30px;
+        
+        color: #C0C0C0;
+    }
+
+    &-price {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-price1 {
+        font-weight: 500;
+        font-size: 22px;
+        line-height: 26px;
+        
+        color: #C0C0C0;
+    }
+
+    &-price2 {
+        font-weight: 700;
+        font-size: 25px;
+        line-height: 30px;
+        color: #9029F5;
+        margin-top: 4px;
+        margin-bottom: 6px;
+    }
+
+    &-price3 {
+        font-weight: 500;
+        font-size: 22px;
+        line-height: 26px;
+        
+        color: #FFFFFF;        
+    }
+}

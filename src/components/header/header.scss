@@ -1,0 +1,309 @@
+.header {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3B3741;
+    position: relative;
+    margin-bottom: 30px;
+    padding: 0 10px;
+    position: relative;
+    margin-right: -10px;
+    margin-left: -10px;
+
+    &__inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        position: relative;
+    
+        &-right {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+    
+    &__logo {
+        width: 139px;
+        height: 29px;
+        margin-right: 40px;
+    }
+    
+    &__search {
+        max-width: 350px;
+        width: 100%;
+    }
+    
+    &__btn {
+        display: flex;
+    }
+    
+    &__icon {
+        display: flex;
+        align-items: center;
+        position: relative;
+
+        &-item {
+            position: relative;
+        }
+    
+        &-item1 {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 16px;
+            cursor: pointer;
+            transition: .15s linear;
+
+            &:hover {
+                transform: translateY(-2px);
+
+                path {
+                    fill: #15101B;
+                }
+            }
+    
+            svg {
+                background: linear-gradient(144.37deg,#95b9fe -3.93%,#9a22f7 62.2%);
+                transition: .2s linear;
+    
+                path, circle {
+                    transition: .15s linear;
+                }
+            }
+            
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    
+        &-notification {
+            width: 26px;
+            height: 32px;
+            margin-right: 16px;
+            cursor: pointer;
+        }
+    }
+}
+
+.search {
+    width: 100%;
+    position: relative;
+
+    &__group {
+        padding: 10px 0;
+    }
+
+    &__input {
+        color: #fff;
+        font-weight: 400;
+        width: 100%;
+        padding: 11px 20px;
+        outline: none;
+        max-width: 350px;
+        position: relative;
+    
+        background: #1D1625;
+        border: 1px solid #3B3741;
+        box-sizing: border-box;
+        border-radius: 220px;
+    
+        font-size: 18px;
+        transition: border-color .2s linear;
+    
+        &:focus, &:hover {
+            border-color: rgb(216, 106, 224);
+        }
+    
+        &-registr {
+            margin-top: 8px;
+            margin-bottom: 20px;
+            height: 40px;
+        }
+    
+        &-text {
+            height: 117px;
+            border-radius: 20px;
+            resize: none;
+            overflow-y: hidden;
+        }
+    
+        &-social {
+            max-width: 460px;
+            text-align: center;
+        }
+    
+        &-price {
+            max-width: 120px;
+            height: 40px;
+            font-size: 16px;
+        }
+    }
+
+    &__inputs {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .to {
+            margin: 0 10px;
+        }
+    }
+
+    &__error {
+        font-size: 14px;
+        margin-bottom: 2px;
+        transition: .1s linear;
+        text-align: center;
+    }
+
+    &__photo {
+        position: absolute;
+        right: 27px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        transition: .15s linear;
+
+        path {
+            transition: .15s linear;
+        }
+
+        &:hover {
+            transform: translateY(-12px);
+
+            path {
+                fill: rgb(216, 106, 224);
+            }
+        }
+    }
+    
+    &__input::placeholder {
+        font-size: 16px;
+        line-height: 19px;
+    
+        color: #9E9EA7;
+    }
+}
+
+.blockchain {
+    min-width: 315px;
+    background-color: #15101B;
+    position: absolute;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid #D566E1;
+    box-shadow: 0px 0px 37px rgba(113, 22, 155, 0.61);
+    padding-bottom: 15px;
+
+    &__title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 24px;
+        margin: 17px 10px 15px;
+    }
+
+    &__btn {
+        text-align: center;
+    }
+
+    &--position {
+        left: -62px;
+        top: 53px;
+    }
+
+    &__inner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        max-width: 570px;
+        width: 100%;
+        margin-top: 16px;
+    
+        &-item {
+            width: 84px;
+            height: 84px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            background: #221D27;
+            margin: 0 5px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            transition: all .2s linear;
+            cursor: pointer;
+    
+            &:hover {
+                transform: translateY(-5px);
+            }
+        }
+    
+        &-img {
+            width: 49px;
+            height: 49px;
+        }
+    
+        &-text {
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 14px;
+    
+            color: #FFFFFF;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+    }
+}
+
+.error-modal {
+    font-size: 14px;
+    margin-bottom: 5px;
+    transition: .1s linear;
+}
+
+.wallet {
+    position: relative;
+
+    &__img {
+        width: 49px;
+        height: 49px;
+    }
+}
+
+.wallet1 {
+    transition: .15s linear;
+    position: relative;
+    z-index: 2;
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+
+    &--single {
+        width: 155px;
+        margin-left: auto;
+    }
+}
+
+.social__block {
+    position: relative;
+
+    img {
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 46px;
+        height: 46px;
+    }
+}

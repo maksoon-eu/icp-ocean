@@ -1,0 +1,50 @@
+.launcpad__list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.launchpad__item {
+    max-width: 350px;
+    width: 100%;
+    background: #1D1625;
+    box-shadow: 0px 0px 20px -4px rgba(0, 0, 0, 0.15);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 31px;
+
+    &:hover {
+        .launchpad__item-photo {
+            transform: scale(1.03);
+        }
+    }
+
+    &-title {
+        font-weight: 700;
+        font-size: 22px;
+        line-height: 26px;
+        color: #FFFFFF;
+    }
+
+    &-text {
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #FFFFFF;
+        margin-top: 13px;
+        margin-bottom: 1px;
+    }
+
+    &-photo {
+        max-width: 350px;
+        width: 100%;
+        height: 137px;
+        transition: .2s linear;
+    }
+}
+
+.launchpad__group {
+    padding: 11px 17px 28px 21px;
+}

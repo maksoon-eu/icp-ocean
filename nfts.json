@@ -1,0 +1,52 @@
+{
+    "sliderNFT": [
+        {
+            "id": 1,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        },
+        {
+            "id": 2,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        },
+        {
+            "id": 3,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        },
+        {
+            "id": 4,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        },
+        {
+            "id": 5,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        },
+        {
+            "id": 6,
+            "name": "Abstaract 3D work",
+            "img": "../../resourses/img/product.png",
+            "owner": "artstudio",
+            "likes": 12,
+            "price": 34
+        }
+    ]
+}

@@ -1,0 +1,124 @@
+.background__slider {
+    background: #1D1625;
+    border-radius: 25px;
+    padding: 16px 19px;
+    margin-bottom: 30px;
+}
+
+.items__slider {
+    &-inner {
+        display: block;
+        max-width: 253px;
+        width: 100%;
+        min-height: 375px;
+        
+        background: #221D27;
+        border-radius: 15px;
+        padding: 25px 15px;
+        margin: 15px auto;
+        transition: .2s linear;
+
+        &:hover {
+            transform: translateY(-5px);
+        }
+    }
+
+    &-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &-hurt {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+
+        svg {
+            margin-right: 4px;
+            path {
+                transition: .1s linear;
+            }
+        }
+    }
+
+    &-title {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 19px;
+        
+        color: #FFFFFF;
+    }
+
+    &-text {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 17px;
+        color: #C0C0C0;
+    }
+
+    &-hover {
+        display: block;
+
+        background-color: #000;
+        opacity: 0;
+    
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transition: opacity .2s linear;
+    }
+
+    &-btn {
+        position: absolute;
+        opacity: 0;
+        left: 10px;
+        top: 10px;
+        transition: opacity .2s linear;
+    }
+
+    &-photo {
+        background: #888888;
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 12px 0;
+        position: relative;
+        height: 223px;
+        width: 223px;
+
+        &:hover {
+            .items__slider-hover {
+                opacity: .3;
+            } 
+            .items__slider-btn {
+                opacity: 1;
+            }
+        }
+    }
+
+    &-purple {
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 17px;
+        color: #E145EF;
+    }
+
+    &-user {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: -50px;
+        position: relative;
+        z-index: 2;
+    }
+
+    &-name {
+        transition: .15s linear;
+        &:hover {
+            color: #b66eff;
+        }
+    }
+}

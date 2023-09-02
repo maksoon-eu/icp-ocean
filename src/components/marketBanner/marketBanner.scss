@@ -1,0 +1,35 @@
+.market__banner {
+    position: relative;
+
+    &-img {
+        border-radius: 25px;
+        overflow: hidden;
+        height: 345px;
+        
+        img {
+            object-fit: cover;
+            max-width: 100%;
+            width: 100%;
+        }
+    }
+
+    &-user {
+        width: 112px;
+        height: 112px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #15101B;
+
+    }
+
+    &-photo {
+        width: 100px;
+        height: 100px;
+    }
+}

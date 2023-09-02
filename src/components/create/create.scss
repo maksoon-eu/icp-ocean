@@ -1,0 +1,112 @@
+.create__inner {
+    width: 100%;
+
+    background: #1D1625;
+    border-radius: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    padding: 28px 10px 72px;
+
+    &-title {
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 29px;
+        color: #FFFFFF;
+        max-width: 396px;
+        width: 100%;
+        padding-bottom: 7px;
+    }
+
+    &-subtitle {
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 17px;
+        color: #A6A3A3;
+        max-width: 396px;
+        width: 100%;
+    }
+
+    &-link {
+        display: flex;
+        align-items: center;
+        width: 60px;
+        margin-right: auto;
+        margin-left: 50px;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 22px;
+        color: #A9A8A8;
+    }
+
+    &--box {
+        padding: 63px 121px 37px 95px;
+        align-items: stretch;
+    }
+}
+
+.create__flexbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.create__group {
+    padding: 26px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+
+    &-item {
+        padding: 26px 42px;
+        background: #221D27;
+        border-radius: 20px;
+        margin: 26px 10px;
+        transition: .15s linear;
+
+        &:hover {
+            transform: translateY(-10px);
+
+            .card {
+                transform: translateY(10px);
+            }
+        }
+    }
+
+    &-title {
+        padding-top: 20px;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 17px;
+        text-align: center;
+        color: #E85B67;
+
+        &--green {
+            color: #70D17B;
+        }
+    }
+}
+
+.card {
+    transition: .15s linear;
+
+    &__img {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 145px;
+        height: 145px;
+        background: linear-gradient(135deg, rgba(240, 136, 144, 0.12) 0.69%, rgba(244, 168, 174, 0.46) 100%);
+        border-radius: 10px;
+        
+    
+        &--green {
+            background: linear-gradient(135deg, rgba(136, 240, 146, 0.05) 0.69%, rgba(168, 244, 176, 0.4) 100%);
+        }
+    }
+}
