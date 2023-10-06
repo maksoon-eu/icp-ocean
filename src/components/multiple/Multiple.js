@@ -1,4 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { LoginKeyContext } from "../loginKey/LoginKey";
+import { v4 as uuidv4 } from 'uuid';
+import { useHttp } from "../../hooks/http.hook";
+import { useDispatch } from "react-redux";
+import ModalWindow from "../modalWindow/ModalWindow";
+import { itemCreated } from "../myTabs/collectionSlice";
 
 import multiple from '../../resourses/img/multiple.svg';
 import user from '../../resourses/img/user.png'
@@ -9,9 +16,22 @@ import './multiple.scss';
 
 const Multiple = () => {
     const [licked, setLicked] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [inputs, setInputs] = useState(['', '', '', '']);
     const [inputError, setInputError] = useState(false);
     const refPhoto = useRef(null);
+
+    const {loginKey} = useContext(LoginKeyContext);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const {request} = useHttp();
+
+    useEffect(() => {
+        if (loginKey !== 'registr') {
+            navigate("/login");
+        }
+    }, [loginKey])
 
     const onInputsChange = (e) => {
         setInputError(false)
@@ -32,7 +52,38 @@ const Multiple = () => {
             setInputError(true)
         } else {
             setInputError(false)
+            sendingCollection()
+            setOpenModal(true)
+            setTimeout(() => {
+                document.body.style.position = 'fixed';
+                document.body.style.overflowY = 'scroll';
+                document.body.style.width = '100%';
+            }, 700)
+            document.body.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            setTimeout(() => {
+                setOpenModal(false);
+                document.body.style.position = 'relative';
+                navigate("/");
+            }, 2500)
         }
+    }
+
+    const sendingCollection = () => {
+        const newCollection = {
+            id: uuidv4(),
+            img: refPhoto.current.src,
+            name: inputs[0],
+            describe: inputs[1],
+            copies: inputs[3],
+            price: inputs[2]
+        }
+
+        request("http://localhost:3001/userCollection", "POST", JSON.stringify(newCollection))
+            .then(dispatch(itemCreated(newCollection)))
+            .catch(err => console.log(err))
     }
 
     const previewFile = (e, inputImg) => {
@@ -53,15 +104,16 @@ const Multiple = () => {
 
     return (
         <div className="single">
+            <ModalWindow openModal={openModal} type={'collection'}/>
             <div className="single__inner">
                 <div className="single__inner-top">
-                    <img src={multiple} alt=""/>
-                    <div className="single__inner-title">Multiple <span className="input-title"></span> NFT</div>
+                    <img style={{minHeight: '80px'}} src={multiple} alt=""/>
+                    <div className="single__inner-title">Collection <span className="input-title"></span> NFT</div>
                 </div>
                 <div className="single__inner-flex">
                     <div className="single__inner-descr">
                         <div className="single__inner-title">
-                            The name of your NFT
+                            The name of your collection
                         </div>
                         <input className="line" type="text" placeholder="Enter the name of your nft" name='0' value={inputs[0]} onChange={onInputsChange}/>
         
@@ -87,7 +139,7 @@ const Multiple = () => {
                     <div className="single__inner-photo">
                         <div className="single__photo-group">
                             <div>
-                                <div className="single__photo-title name__work">Abstract 3D work</div>
+                                <div className="single__photo-title name__work">{inputs[0] === '' ? '...' : inputs[0]}</div>
                                 <div className="single__photo-subtitle">Owner: artstudio</div>
                             </div>
                             <div>
@@ -100,7 +152,7 @@ const Multiple = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="single__photo-block">
+                        <div className="single__photo-block" onClick={() => document.querySelector('.input__turn').click()}>
                             <img ref={refPhoto} src="" alt="" className="input__img"/>
                             <div className="single__photo-rashir">
                                 PNG, GIF, WEBP, MP4.<br/>Max 100 MB.
@@ -127,7 +179,7 @@ const Multiple = () => {
 
                 <div className="single__error" style={{color: inputError ? '#E84D4D' : 'transparent'}}>Fill in the required fields correctly</div>
                 <div className="wallet1 wallet1--single">
-                    <button className="btn" onClick={onSubmit}><span>Connect wallet</span></button>
+                    <button className="btn" onClick={onSubmit}><span>Create collection</span></button>
                 </div>
             </div>
         </div>

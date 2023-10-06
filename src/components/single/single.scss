@@ -1,4 +1,3 @@
-/* Box */
 .single__inner {
     width: 100%;
     background: #1D1625;
@@ -191,6 +190,8 @@
     border-radius: 15px;
     opacity: 0;
     z-index: 3;
+    object-fit: cover;
+    transition: .15s linear;
 }
 
 .single__error {

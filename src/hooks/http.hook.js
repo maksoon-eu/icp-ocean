@@ -11,7 +11,11 @@ export const useHttp = () => {
 
             const data = await response.json();
 
+            const sleep = ms => new Promise(res => setTimeout(res, ms));
+            await sleep(1000);
+
             return data;
+            
         } catch(e) {
             throw e;
         }

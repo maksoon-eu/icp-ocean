@@ -5,6 +5,7 @@ import { ThemeProvider } from "../src/components/theme/Theme";
 import { LoginKeyProvider } from './components/loginKey/LoginKey';
 import WebFont from 'webfontloader';
 import { Provider } from 'react-redux';
+import { CurrentProvider } from './components/current/Current';
 
 import App from './components/app/App';
 import store from './store';
@@ -23,9 +24,11 @@ root.render(
     // <React.StrictMode>
     <ThemeProvider>
         <LoginKeyProvider>
-            <Provider store={store}>
-                <Root/>
-            </Provider>
+            <CurrentProvider>
+                <Provider store={store}>
+                    <Root/>
+                </Provider>
+            </CurrentProvider>
         </LoginKeyProvider>
     </ThemeProvider>
     // </React.StrictMode>

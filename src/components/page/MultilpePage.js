@@ -1,4 +1,4 @@
-import Multiple from '../multiple/Mltiple';
+import Multiple from '../multiple/Multiple';
 import { motion } from "framer-motion";
 
 const MultilpePage = () => {

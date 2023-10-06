@@ -1,4 +1,12 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext, useEffect } from "react";
+import { CurrentContext } from "../current/Current";
+import { LoginKeyContext } from "../loginKey/LoginKey";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
+import { useHttp } from "../../hooks/http.hook";
+import { useDispatch } from "react-redux";
+import ModalWindow from "../modalWindow/ModalWindow";
+import { itemCreated } from "../myTabs/nftSlice";
 
 import single from '../../resourses/img/single.svg';
 import user from '../../resourses/img/user.png'
@@ -8,9 +16,23 @@ import './single.scss';
 
 const Single = () => {
     const [licked, setLicked] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [inputs, setInputs] = useState(['', '', '']);
     const [inputError, setInputError] = useState(false);
     const refPhoto = useRef(null);
+
+    const {request} = useHttp();
+    const {current} = useContext(CurrentContext);
+    const {loginKey} = useContext(LoginKeyContext);
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (loginKey !== 'registr') {
+            navigate("/login");
+        }
+    }, [loginKey])
 
     const onInputsChange = (e) => {
         setInputError(false)
@@ -31,6 +53,22 @@ const Single = () => {
             setInputError(true)
         } else {
             setInputError(false)
+            sendingNft()
+            setOpenModal(true)
+            setTimeout(() => {
+                document.body.style.position = 'fixed';
+                document.body.style.overflowY = 'scroll';
+                document.body.style.width = '100%';
+            }, 700)
+            document.body.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            setTimeout(() => {
+                setOpenModal(false);
+                document.body.style.position = 'relative';
+                navigate("/");
+            }, 2500)
         }
     }
 
@@ -50,11 +88,26 @@ const Single = () => {
         }
     }
 
+    const sendingNft = () => {
+        const newNft = {
+            id: uuidv4(),
+            img: refPhoto.current.src,
+            name: inputs[0],
+            describe: inputs[1],
+            price: inputs[2]
+        }
+
+        request("http://localhost:3001/userNft", "POST", JSON.stringify(newNft))
+            .then(dispatch(itemCreated(newNft)))
+            .catch(err => console.log(err))
+    }
+
     return (
         <div className="single">
+            <ModalWindow openModal={openModal} type={'NFT'}/>
             <div className="single__inner">
                 <div className="single__inner-top">
-                    <img src={single} alt=""/>
+                    <img style={{minHeight: '69px'}} src={single} alt=""/>
                     <div className="single__inner-title">Single <span className="input-title"></span> NFT</div>
                 </div>
                 <div className="single__inner-flex">
@@ -80,7 +133,7 @@ const Single = () => {
                     <div className="single__inner-photo">
                         <div className="single__photo-group">
                             <div>
-                                <div className="single__photo-title name__work">Abstract 3D work</div>
+                                <div className="single__photo-title name__work">{inputs[0] === '' ? '...' : inputs[0]}</div>
                                 <div className="single__photo-subtitle">Owner: artstudio</div>
                             </div>
                             <div>
@@ -93,7 +146,7 @@ const Single = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="single__photo-block">
+                        <div className="single__photo-block" onClick={() => document.querySelector('.input__turn').click()}>
                             <img ref={refPhoto} src="" alt="" className="input__img"/>
                             <div className="single__photo-rashir">
                                 PNG, GIF, WEBP, MP4.<br/>Max 100 MB.
@@ -108,7 +161,7 @@ const Single = () => {
                         <div className="single__photo-group">
                             <div>
                                 <div className="single__photo-subtitle">Current bid:</div>
-                                <div className="single__photo-price">{inputs[2].length > 5 ? inputs[2].slice(0, 5)+ '...' : inputs[2]} ETH</div>
+                                <div className="single__photo-price">{`${inputs[2].length > 5 ? inputs[2].slice(0, 5)+ '...' : inputs[2]} ${current}`}</div>
                             </div>
                             <div className="single__photo-photo">
                                 <img src={user} alt=""/>

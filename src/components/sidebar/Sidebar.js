@@ -1,7 +1,11 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { filterChange } from "./sidebarSlice";
+import { checkFilter } from "../../components/marketList/marketSlice";
+import { v4 as uuidv4 } from 'uuid';
 
-import downArror from '../../resourses/img/down-arrow.svg';
+import downArrow from '../../resourses/img/down-arrow.svg';
 import ethereum from '../../resourses/img/eth.svg';
 import bsc from '../../resourses/img/bsc.svg';
 import polygon from '../../resourses/img/polygon.svg';
@@ -14,13 +18,23 @@ import legendary from '../../resourses/img/legend.svg';
 import art from '../../resourses/img/art.png';
 import contr from '../../resourses/img/contr.png';
 
+import punks from '../../resourses/img/cryptoPunk.png';
+import hashmasks from '../../resourses/img/hashmasks.png';
+import chubbies from '../../resourses/img/chubbies.png';
+
 import './sidebar.scss'
 
-const LiItems = ({filter, i, expanded, setExpanded, arr = 'price'}) => {
+const LiItems = ({filter, i, expanded, setExpanded, arr = 'price', setSideOpened}) => {
     const isOpen = i === expanded;
-    const [activeItem, setActiveItem] = useState(null);
     const [priceInputs, setPriceInputs] = useState(['', '']);
     const [inputError, setInputError] = useState(false);
+    const {activeFilter} = useSelector(state => state.filters);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        const result = Object.keys(activeFilter).some(item => activeFilter[item])
+        result ? dispatch(checkFilter(uuidv4())) : dispatch(checkFilter(false))
+    }, [activeFilter])
 
     const onPriceInputs = (e) => {
         if (e.target.value.charAt(0) === ' ') {
@@ -33,9 +47,22 @@ const LiItems = ({filter, i, expanded, setExpanded, arr = 'price'}) => {
     const onSubmit = () => {
         if (priceInputs.some(item => item === '') || +priceInputs[0] > +priceInputs[1]) {
             setInputError(true)
+            dispatch(filterChange(['price', false]))
         } else {
             setInputError(false)
+            dispatch(filterChange(['price', [priceInputs[0], priceInputs[1]]]))
+            setSideOpened(false)
         }
+    }
+
+    const onSetActiveItem = (filter, item) => {
+        if ( activeFilter[filter] === item) {
+            dispatch(filterChange([filter, false]))
+        } else {
+            dispatch(filterChange([filter, item]))
+        }
+
+        setSideOpened(false)
     }
 
     return (
@@ -43,11 +70,18 @@ const LiItems = ({filter, i, expanded, setExpanded, arr = 'price'}) => {
             variants={variantsLi}
             className="market__li"
         >
-            <motion.div className="market__slide-item" onClick={() => setExpanded(isOpen ? false : i)}>
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 1 }} className="market__item">
+            <motion.div 
+                className="market__slide-item" 
+                onClick={() => setExpanded(isOpen ? false : i)}
+            >
+                <motion.div 
+                    whileHover={{ scale: 1.04 }} 
+                    whileTap={{ scale: 1 }} 
+                    className="market__item"
+                >
                     <div className="market__slide-name">{filter}</div>
                     <div className={`market__slide-icon ${isOpen ? 'rotate' : ''}`}>
-                        <img src={downArror} alt=""/>
+                        <img src={downArrow} alt=""/>
                     </div>
                 </motion.div>
             </motion.div>
@@ -67,11 +101,35 @@ const LiItems = ({filter, i, expanded, setExpanded, arr = 'price'}) => {
                 >
                     {arr !== 'price' ? arr.map((item, i) => {
                         return (
-                            <div className="market__list-item" key={i} onClick={activeItem === i ? () => setActiveItem(null) : () => setActiveItem(i)} style={{background: activeItem === i ? 'rgb(143 41 245 / 37%)' : 'rgb(35 25 34)'}}>
-                                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 1 }} className="market__list-text">
-                                    {filter === 'Blockchain' ? <img className="icon" src={item === 'BSC' ? bsc : item === 'Ethereum' ? ethereum : item === 'Polygon' ? polygon : null} alt=""/> : null}
-                                    {filter === 'Raraity' ? <img className="icon" src={item === 'Common' ? common : item === 'Rare' ? rare : item === 'Epic' ? epic : item === 'Legendary' ? legendary : null} alt=""/> : null}
-                                    {filter === 'Categories' ? <img className="icon" src={item === 'Art' ? art : item === 'Game' ? contr : null} alt=""/> : null}
+                            <div 
+                                className="market__list-item" 
+                                key={i} 
+                                onClick={() => onSetActiveItem(filter, item)} 
+                                style={{background: activeFilter[filter] === item ? 'rgb(143 41 245 / 37%)' : 'rgb(35 25 34)'}}
+                            >
+                                <motion.div 
+                                    whileHover={{ scale: 1.04 }} 
+                                    whileTap={{ scale: 1 }} className="market__list-text"
+                                >
+                                    {filter === 'blockchain' ? 
+                                    <img className="icon" src={item === 'BSC' ? 
+                                    bsc : item === 'ethereum' ? 
+                                    ethereum : item === 'polygon' ? 
+                                    polygon : null} alt=""/> : null}
+                                    {filter === 'rarity' ? 
+                                    <img className="icon" src={item === 'common' ? 
+                                    common : item === 'rare' ? 
+                                    rare : item === 'epic' ?
+                                    epic : item === 'legendary' ? 
+                                    legendary : null} alt=""/> : null}
+                                    {filter === 'categories' ? 
+                                    <img className="icon" src={item === 'art' ? 
+                                    art : item === 'game' ? 
+                                    contr : null} alt=""/> : null}
+                                    {filter === 'collections' ? 
+                                    <img className="icon" src={item === 'crypto punks' ? 
+                                    punks : item === 'hashmasks' ? 
+                                    hashmasks : chubbies} alt=""/> : null}
                                     <div className="market__list-name">{item}</div>
                                 </motion.div>
                             </div>
@@ -169,6 +227,8 @@ const Sidebar = () => {
     const refBtn = useRef(null);
     const height = useRef({ width: 0, height: 0 });
     const [expanded, setExpanded] = useState(false);
+
+    const {marketLoadingStatus} = useSelector(state => state.market);
     
     useEffect(() => {
         height.current.width = ref.current.offsetWidth;
@@ -188,10 +248,16 @@ const Sidebar = () => {
           document.removeEventListener("mousedown", clickOutElement)
         }
     }, [sideOpened])
+
+    const onOpenSidebar = () => {
+        if (marketLoadingStatus !== 'loading' && marketLoadingStatus !== 'updateLoading') {
+            setSideOpened(sideOpened => !sideOpened)
+        }
+    }
   
     return (
         <>
-        <motion.button ref={refBtn} className="market__button" onClick={() => setSideOpened(sideOpened => !sideOpened)} animate={sideOpened ? "open" : "closed"}>
+        <motion.button ref={refBtn} className="market__button" onClick={onOpenSidebar} animate={sideOpened ? "open" : "closed"}>
                 <svg width="27" height="27" viewBox="0 0 23 23">
                 <Path
                     variants={{
@@ -230,11 +296,11 @@ const Sidebar = () => {
         >
             <motion.div className="background" variants={sidebar} />
             <motion.ul variants={variantsUl} className="market__ul">
-                <LiItems filter={'Categories'} i={0} expanded={expanded} setExpanded={setExpanded} arr={['Art', 'Game']}/>
-                <LiItems filter={'Price'} i={1} expanded={expanded} setExpanded={setExpanded}/>
-                <LiItems filter={'Raraity'} i={2} expanded={expanded} setExpanded={setExpanded} arr={['Common', 'Rare', 'Epic', 'Legendary']}/>
-                <LiItems filter={'Collections'} i={3} expanded={expanded} setExpanded={setExpanded} arr={['main', 'support', 'second']}/>
-                <LiItems filter={'Blockchain'} i={4} expanded={expanded} setExpanded={setExpanded} arr={['BSC', 'Ethereum', 'Polygon']}/>
+                <LiItems setSideOpened={setSideOpened} filter={'categories'} i={0} expanded={expanded} setExpanded={setExpanded} arr={['art', 'game']}/>
+                <LiItems setSideOpened={setSideOpened} filter={'price'} i={1} expanded={expanded} setExpanded={setExpanded}/>
+                <LiItems setSideOpened={setSideOpened} filter={'rarity'} i={2} expanded={expanded} setExpanded={setExpanded} arr={['common', 'rare', 'epic', 'legendary']}/>
+                <LiItems setSideOpened={setSideOpened} filter={'collections'} i={3} expanded={expanded} setExpanded={setExpanded} arr={['crypto punks', 'chubbies', 'hashmasks']}/>
+                <LiItems setSideOpened={setSideOpened} filter={'blockchain'} i={4} expanded={expanded} setExpanded={setExpanded} arr={['BSC', 'ethereum', 'polygon']}/>
             </motion.ul>
         </motion.aside>
         </>

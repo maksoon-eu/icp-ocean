@@ -8,7 +8,6 @@ import MainPage from "../page/MainPage";
 import LaunchpadPage from "../page/LaunchpadPage";
 import CreatePage from "../page/CreatePage";
 import MarketPage from "../page/MarketPage";
-import SingupPage from "../page/SingupPage";
 import LoginPage from "../page/LoginPage";
 import Footer from "../footer/Footer";
 import MarketItemPage from "../page/MarketItemPage";
@@ -51,8 +50,7 @@ const App = () => {
                         <Route path="/create" element={<CreatePage/>}/>
                         <Route path="/market" element={<MarketPage/>}/>
                         <Route path="/login" element={<LoginPage setWalletOpened={setWalletOpened} />}/>
-                        <Route path="/singup" element={<SingupPage/>}/>
-                        <Route path="/itemId" element={<MarketItemPage/>}/>
+                        <Route path="/market/itemId" element={<MarketItemPage/>}/>
                         <Route path="/project" element={<ProjectPage/>}/>
                         <Route path="/artstudio" element={<PersonPage/>}/>
                         <Route path="/create/single" element={<SinglePage/>}/>

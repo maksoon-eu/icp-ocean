@@ -1,21 +1,31 @@
 import Slider from "react-slick";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useOnScreen } from "../../hooks/screen.hook";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProjects, selectAll } from "../../components/projectSlider/projectSlice";
+import store from '../../store';
 
 import loadingImg from '../../resourses/img/loading.svg';
-import sliderImg from '../../resourses/img/slider-img.png';
 import game from '../../resourses/img/game.png';
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
-const LaunchProjectItem = () => {
+const LaunchProjectItem = ({item}) => {
     const controls = useAnimation();
     const rootRef = useRef(null);
     const onScreen = useOnScreen(rootRef);
+    const [fakeLoading, setFakeLoading] = useState(true);
+    const {img, name} = item;
+
+   useEffect(() => {
+        setTimeout(() => {
+            setFakeLoading(false)
+        }, 1000)
+   }, [])
 
     useEffect(() => {
         if (onScreen) {
@@ -52,11 +62,11 @@ const LaunchProjectItem = () => {
                             width='100%' height='100%'
                             placeholderSrc={loadingImg}
                             effect="blur"
-                            src={sliderImg}
+                            src={fakeLoading ? undefined : img}
                             alt='img'
                         />
                     </div>
-                    <div className="slider__item-block">Elvion NFT Project</div>
+                    <div className="slider__item-block">{name}</div>
                 </div>
             </div>
         </motion.div>
@@ -64,6 +74,30 @@ const LaunchProjectItem = () => {
 };
 
 const LaunchpadSlider = () => {
+    const { projectLoadingStatus } = useSelector(state => state.project);
+    const project = selectAll(store.getState());
+
+    const skeletons = ['', '', '']
+
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchProjects())
+    }, []);
+
+    const projectSliderList = project.map(item => {
+        return <LaunchProjectItem key={item.id} item={item}/>
+    })
+
+    const skeletonSliderList = skeletons.map((item, i) => {
+        return (
+            <div key={i} className="skeleton">
+                <div className="skeleton-project skeleton-project--launchpad skeleton--wave"/>
+            </div>
+            
+        )
+    })
+
     const settings = {
         dots: false,
         infinite: false,
@@ -71,17 +105,28 @@ const LaunchpadSlider = () => {
         swipeToSlide: true,
         slidesToScroll: 1,
     };
+
     return (
         <div className="background__slider">
             <div className="slider__title">
                 <span>Launchpad Projects</span>
                 <img src={game} alt=""/>
             </div>
-            <Slider {...settings} className="project__slider">
-                <LaunchProjectItem/>
-                <LaunchProjectItem/>
-                <LaunchProjectItem/>
-            </Slider>
+            <div style={{minHeight: '250px'}}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        initial={{ opacity: 0}}
+                        animate={{ opacity: 1}}
+                        exit={{opacity: 0}}
+                        key={projectLoadingStatus === 'loading'}
+                        className="film__flex"
+                    >
+                        <Slider {...settings} className="project__slider">
+                            {projectLoadingStatus === 'loading' ? skeletonSliderList : projectSliderList}
+                        </Slider>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </div>
     );
 };

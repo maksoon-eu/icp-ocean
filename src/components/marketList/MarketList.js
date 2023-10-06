@@ -1,20 +1,35 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useContext } from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Link } from "react-router-dom";
-import { motion, useAnimation } from 'framer-motion';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useOnScreen } from "../../hooks/screen.hook";
+import { fetchMarket, selectAll, changeSort, checkSort } from "./marketSlice";
+import store from "../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { CurrentContext } from "../current/Current";
+import { v4 as uuidv4 } from 'uuid';
+import { filterChange } from "../sidebar/sidebarSlice";
 
-import market from '../../resourses/img/market.png';
 import user from '../../resourses/img/user.png';
 import loadingImg from '../../resourses/img/loading.svg';
 
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import './marketList.scss';
 
-const MarketListItem = () => {
+const MarketListItem = ({item}) => {
     const controls = useAnimation();
     const rootRef = useRef(null);
     const onScreen = useOnScreen(rootRef);
+    const [fakeLoading, setFakeLoading] = useState(true);
+    const {img, name, price, owner, id} = item;
+
+    const { current } = useContext(CurrentContext);
+
+   useEffect(() => {
+        setTimeout(() => {
+            setFakeLoading(false)
+        }, 1000)
+   }, [])
 
     useEffect(() => {
         if (onScreen) {
@@ -46,13 +61,13 @@ const MarketListItem = () => {
         >
             <div className="market__catalog-list">
                 <div className="market__catalog-item">
-                    <Link to='/itemId' className="market__catalog-link">
+                    <Link to='/market/itemId' className="market__catalog-link">
                         <div className="market__catalog-photo">
                             <LazyLoadImage 
                                 width='100%' height='100%'
                                 placeholderSrc={loadingImg}
                                 effect="blur"
-                                src={market}
+                                src={fakeLoading ? undefined : img}
                                 alt='img'
                             />
                             <div className="market__catalog-hover"/>
@@ -60,15 +75,15 @@ const MarketListItem = () => {
                                 <div className="banner__btn banner__btn--mini"><span>Buy now</span></div>
                             </div>
                         </div>
-                        <div className="market__catalog-purple">0.034 ICP</div>
-                        <div className="market__catalog-user">
-                            <img src={user} alt=""/>
-                            <div className="market__catalog-conect">
-                                <span>@artstudio</span>
-                                <span>Abstract 3D...</span>
-                            </div>
-                        </div>
+                        <div className="market__catalog-purple">{`${price} ${current}`}</div>
                     </Link>
+                    <div className="market__catalog-user">
+                        <img src={user} alt=""/>
+                        <div className="market__catalog-connect">
+                            <Link to="/artstudio" className="items__slider-name">{`@${owner}`}</Link>
+                            <span className={id % 2 === 0 ? 'market__catalog-connect--first' : 'market__catalog-connect--second'}>{name.length > 12 ? name.slice(0, 12) + '...' : name}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </motion.div>
@@ -76,42 +91,197 @@ const MarketListItem = () => {
 }
 
 const MarketList = () => {
-    return (
-        <div className='market'>
-            <div className="market__catalog">
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
-                <MarketListItem/>
+    const [sortModal, setSortModal] = useState(false);
+    const [prevSort, setPrevSort] = useState(false);
+
+    const refSort = useRef();
+    const {activeFilter} = useSelector(state => state.filters);
+    const { current } = useContext(CurrentContext);
+
+
+    const {marketLoadingStatus, totalCount, checkActiveFilter, activeSort, checkActiveSort} = useSelector(state => state.market);
+    const marketList = selectAll(store.getState());
+    const dispatch = useDispatch();
+
+    const skeletons = ['', '', '' ,'', '', '', '', '', '' ,'', '', '', '', '', '' ,'', '', '', '', ''];
+
+    useEffect(() => {
+        dispatch(fetchMarket());
+    }, [checkActiveFilter, checkActiveSort])
+
+    useEffect(() => {
+        const result = Object.keys(activeSort).some(item => activeSort[item])
+        result ? dispatch(checkSort(uuidv4())) : dispatch(checkSort(false))
+    }, [activeSort])
+
+    useEffect(() => {
+        const clickOutElement = (e) => {
+            if (sortModal && refSort.current && !refSort.current.contains(e.target)) {
+                setSortModal(false)
+            }
+        }
+    
+        document.addEventListener("mousedown", clickOutElement)
+    
+        return function() {
+          document.removeEventListener("mousedown", clickOutElement)
+        }
+    }, [sortModal])
+
+    const marketItemsList = marketList.map(item => {
+        return <MarketListItem key={item.id} item={item}/>
+    })
+
+    const skeletonList = skeletons.map((item, i) => {
+        return (
+            <div key={i} className="skeleton">
+                <div className="skeleton-market skeleton--wave"/>
             </div>
-            <div className="btnLoad btnLoad--absolute">
-                <div className="btn"><span>Load more</span></div>
+        )
+    })
+
+    const onSetActiveItem = (sort, item) => {
+        dispatch(changeSort([prevSort, false]))
+
+        if (activeSort[sort] === item) {
+            dispatch(changeSort([sort, false]))
+            setSortModal(false)
+        } else {
+            dispatch(changeSort([sort, item]))
+            setSortModal(false)
+        }
+
+        setPrevSort(sort)
+    }
+
+    const onSortModal = () => {
+        if (marketLoadingStatus !== 'loading' && marketLoadingStatus !== 'updateLoading' && marketItemsList.length) {
+            setSortModal(sortModal => !sortModal)
+        }
+    }
+
+    const onVisibleDelete = (key) => {
+        if (marketLoadingStatus !== 'loading' && marketLoadingStatus !== 'updateLoading') {
+            setTimeout(() => {
+                dispatch(filterChange([key, false]))
+            }, 400)
+        }
+    }
+
+    const onDeleteAll = () => {
+        if (marketLoadingStatus !== 'loading' && marketLoadingStatus !== 'updateLoading') {
+            setTimeout(() => {
+                Object.keys(activeFilter).forEach(key => dispatch(filterChange([key, false])))
+            }, 400)
+        }
+    }
+
+    const filerList = Object.keys(activeFilter).filter(key => activeFilter[key]).map((key, i) => {
+        return (
+            <motion.div 
+                layout
+                onClick={() => onVisibleDelete(key)} 
+                key={i} className="market__filter-visible"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: "spring", duration: 0.5 }}
+                whileHover={{ scale: 1.07 }}
+            >
+                {key === 'price' ?`${activeFilter[key][0]} - ${activeFilter[key][1]} ${current}` : activeFilter[key]}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.662 1.97037L6.63205 5.00063L9.662 8.03074C10.1127 8.4816 10.1127 9.21193 9.662 9.66279C9.43681 9.88798 9.14158 10.0007 8.84649 10.0007C8.55091 10.0007 8.25564 9.88815 8.03063 9.66279L5.00002 6.63234L1.96965 9.66276C1.74449 9.88795 1.44922 10.0006 1.15387 10.0006C0.858611 10.0006 0.563548 9.88812 0.338189 9.66276C-0.1125 9.2121 -0.1125 8.48174 0.338189 8.03071L3.36805 5.0006L0.338017 1.97037C-0.112672 1.51968 -0.112672 0.789178 0.338017 0.33849C0.78862 -0.111853 1.5187 -0.111853 1.96947 0.33849L4.99999 3.36874L8.03028 0.33849C8.48114 -0.111853 9.21131 -0.111853 9.66183 0.33849C10.1127 0.789178 10.1127 1.51968 9.662 1.97037Z" fill="white"/>
+                </svg>
+            </motion.div>
+        )
+    })
+    
+    return (
+        <div className="market">
+            <div className="market__filter">
+                <AnimatePresence mode="popLayout">
+                    {filerList}
+                </AnimatePresence>
+                <motion.div
+                    className="market__clear"
+                    onClick={onDeleteAll}
+                    whileHover={{ scale: 1.07 }}
+                    initial={{ opacity: 0 }}
+                    variants={{open: {opacity: 1, zIndex: 1}, close: {opacity: 0, zIndex: -1, transition: {zIndex: {delay: .25}}}}}
+                    animate={filerList.length ? 'open' : 'close'}
+                >
+                    Clear All
+                </motion.div>
+            </div>
+            <div className="market__sort" ref={refSort}>
+                <svg width="25" height="25" viewBox="0 0 45 39" fill="none" xmlns="http://www.w3.org/2000/svg" onClick={onSortModal}>
+                    <path fillRule="evenodd" clipRule="evenodd" d="M17.5 17C15.8182 17 14.1741 16.501 12.7759 15.5663C11.3778 14.6316 10.2883 13.3032 9.64542 11.749C9.41136 11.1832 9.24033 10.5967 9.13337 10H1.54839C1.13773 10 0.743913 9.84199 0.453535 9.56069C0.163156 9.27938 0 8.89783 0 8.5C0 8.10218 0.163156 7.72067 0.453535 7.43936C0.743913 7.15806 1.13773 7 1.54839 7H9.13342C9.14325 6.94519 9.15362 6.89043 9.16454 6.83575C9.49383 5.18647 10.305 3.67192 11.4954 2.48383C12.6857 1.29573 14.2018 0.487499 15.8517 0.161358C17.5016 -0.164782 19.2112 0.00585949 20.7641 0.651693C22.317 1.29753 23.6433 2.38949 24.5754 3.78944C25.5074 5.18939 26.0032 6.83437 26 8.5162C25.9957 10.7677 25.0983 12.9256 23.5047 14.5162C21.9111 16.1067 19.7515 17 17.5 17ZM17.5 3.26049C16.4605 3.26049 15.4444 3.5687 14.5801 4.14621C13.7158 4.72372 13.0422 5.54456 12.6444 6.50491C12.2466 7.46527 12.1425 8.52206 12.3453 9.54157C12.548 10.5611 13.0486 11.4975 13.7836 12.2325C14.5187 12.9676 15.4552 13.4681 16.4747 13.6709C17.4942 13.8737 18.551 13.7697 19.5113 13.3719C20.4717 12.9741 21.2925 12.3004 21.87 11.4361C22.4475 10.5718 22.7557 9.55569 22.7557 8.5162C22.7514 7.12361 22.1964 5.78927 21.2117 4.80456C20.227 3.81985 18.8926 3.26477 17.5 3.26049ZM34.864 32H43.3226C43.7675 32 44.1941 31.842 44.5087 31.5607C44.8232 31.2794 45 30.8978 45 30.5C45 30.1022 44.8232 29.7207 44.5087 29.4394C44.1941 29.1581 43.7675 29 43.3226 29H34.8666C34.6608 27.8525 34.2202 26.7541 33.5663 25.776C32.6316 24.3778 31.3032 23.2883 29.7491 22.6455C28.1949 22.0026 26.485 21.8352 24.8357 22.1645C23.1864 22.4938 21.672 23.3049 20.4839 24.4953C19.2958 25.6857 18.4875 27.2018 18.1613 28.8517C17.8352 30.5016 18.0059 32.2111 18.6517 33.764C19.2976 35.3169 20.3895 36.6433 21.7895 37.5754C23.1894 38.5074 24.8343 39.0032 26.5162 39C28.7664 38.9914 30.9217 38.0926 32.5114 36.5C33.7432 35.2658 34.5577 33.6927 34.864 32ZM43.3674 10H30.6326C30.1996 10 29.7844 9.84199 29.4782 9.56069C29.172 9.27938 29 8.89783 29 8.5C29 8.10218 29.172 7.72067 29.4782 7.43936C29.7844 7.15806 30.1996 7 30.6326 7H43.3674C43.8004 7 44.2156 7.15806 44.5218 7.43936C44.828 7.72067 45 8.10218 45 8.5C45 8.89783 44.828 9.27938 44.5218 9.56069C44.2156 9.84199 43.8004 10 43.3674 10ZM1.63266 32H14.3673C14.8004 32 15.2156 31.842 15.5218 31.5607C15.828 31.2794 16 30.8978 16 30.5C16 30.1022 15.828 29.7207 15.5218 29.4394C15.2156 29.1581 14.8004 29 14.3673 29H1.63266C1.19965 29 0.7844 29.1581 0.478217 29.4394C0.172035 29.7207 0 30.1022 0 30.5C0 30.8978 0.172035 31.2794 0.478217 31.5607C0.7844 31.842 1.19965 32 1.63266 32ZM23.5902 26.1395C24.457 25.5632 25.4753 25.2573 26.5162 25.2605C27.9045 25.2648 29.2347 25.8181 30.2164 26.7998C31.198 27.7815 31.7515 29.1117 31.7557 30.5C31.7589 31.5408 31.453 32.5592 30.8767 33.426C30.3005 34.2928 29.4798 34.9689 28.5188 35.3687C27.5578 35.7685 26.4997 35.874 25.4787 35.6717C24.4577 35.4694 23.5197 34.9685 22.7837 34.2325C22.0477 33.4965 21.5468 32.5586 21.3445 31.5376C21.1423 30.5165 21.2477 29.4585 21.6475 28.4974C22.0473 27.5364 22.7234 26.7157 23.5902 26.1395Z" fill="rgb(143, 41, 245)"/>
+                </svg>
+                <motion.div
+                    className="market__sort-modal"
+                    initial={{opacity: 0}}
+                    variants={{open: { opacity: 1, zIndex: 5}, closed: { opacity: 0, zIndex: -5, transition:{zIndex: {delay: .3}}}}}
+                    animate={sortModal ? "open" : "closed"}
+                >
+                    <div className="market__sort-item" onClick={() => onSetActiveItem('price', 'esc')} >
+                        <svg width="20" height="20" viewBox="0 0 69 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M62.6344 20.5291V20.5334C62.9443 19.5594 63.125 18.5425 63.125 17.5V13.125C63.125 5.87891 55.2333 0 45.5 0C35.7667 0 27.875 5.87891 27.875 13.125C27.875 12.7661 27.9094 12.4157 27.9467 12.0654C24.3064 14.4666 22 17.97 22 21.875V26.25C22 30.3089 24.4785 33.9362 28.3656 36.3415C28.0557 37.3157 27.875 38.3325 27.875 39.375V43.75C27.875 45.2881 28.248 46.7536 28.902 48.125C28.248 49.4964 27.875 50.9619 27.875 52.5V56.875C27.875 64.1211 35.7667 70 45.5 70C55.2333 70 63.125 64.1211 63.125 56.875V52.5C63.125 50.9362 62.7377 49.4452 62.0665 48.0566C62.0608 48.0651 62.055 48.078 62.0492 48.0866C62.5426 47.0441 62.9299 45.959 63.0533 44.8096C66.6936 42.4041 69 38.905 69 35V30.625C69 26.5662 66.5215 22.9346 62.6344 20.5291ZM45.5 2.1875C55.0211 2.1875 61.6562 7.95102 61.6562 13.125C61.6562 18.2947 55.0211 24.0625 45.5 24.0625C35.9789 24.0625 29.3438 18.2947 29.3438 13.125C29.3438 7.95102 35.9789 2.1875 45.5 2.1875ZM23.4688 21.875C23.4688 19.32 25.0953 16.6327 27.875 14.5563V17.5C27.875 24.7461 35.7667 30.625 45.5 30.625C46.9544 30.625 48.36 30.4797 49.7112 30.2319C47.0175 31.7743 43.5952 32.8125 39.625 32.8125C30.1039 32.8125 23.4688 27.0447 23.4688 21.875ZM61.6562 52.5C61.6562 57.6696 55.0211 63.4375 45.5 63.4375C35.9789 63.4375 29.3438 57.6696 29.3438 52.5C29.3438 51.6413 29.5905 50.7697 29.9376 49.9066C29.9347 49.9023 29.929 49.8937 29.9261 49.8853C32.8837 54.0423 38.7472 56.875 45.5 56.875C52.2614 56.875 58.0963 54.021 61.0481 49.8553C61.0453 49.8596 61.0452 49.8595 61.0424 49.8638C61.4038 50.7397 61.6562 51.6242 61.6562 52.5ZM55.592 47.7319C52.8953 49.2786 49.4731 50.3125 45.5 50.3125C35.9789 50.3125 29.3438 44.5446 29.3438 39.375C29.3438 38.6315 29.5159 37.8796 29.7769 37.1362C31.217 37.8582 32.8091 38.4266 34.5103 38.8068C36.7018 44.1986 43.4203 48.125 51.375 48.125C52.8351 48.125 54.2465 47.9798 55.6033 47.7277C55.6005 47.7277 55.5977 47.7319 55.592 47.7319ZM51.375 41.5625C47.6056 41.5625 44.3181 40.6396 41.6846 39.2254C49.9665 38.499 56.507 33.5474 57.1782 27.3096C59.1776 25.9894 60.7785 24.3444 61.8083 22.4731C61.8054 22.4731 61.8054 22.4731 61.8054 22.4731C65.3625 24.6265 67.5312 27.7026 67.5312 30.625C67.5312 35.7946 60.8961 41.5625 51.375 41.5625ZM48.6384 16.3123C48.6384 15.8509 48.3916 15.4962 47.8983 15.2612C47.4049 15.022 46.3062 14.7144 44.6051 14.3469C43.0761 14.0264 41.8798 13.7059 41.0192 13.3898C40.1586 13.0737 39.4587 12.6293 38.9222 12.0653C38.3857 11.4927 38.1161 10.8262 38.1161 10.0743C38.1161 9.08305 38.5981 8.18576 39.5562 7.39115C40.5144 6.60078 42.0233 6.11789 44.083 5.93852V4.375H46.8657V5.93879C49.9753 6.16957 51.9891 7.23762 52.9042 9.16029L49.0716 10.1173C48.3229 8.80141 47.1696 8.14338 45.6035 8.14338C44.8174 8.14338 44.1863 8.28871 43.713 8.58771C43.2367 8.87824 42.9987 9.23713 42.9987 9.6559C42.9987 10.0831 43.2282 10.4079 43.6872 10.6386C44.1433 10.865 45.1273 11.1429 46.6305 11.4846C48.2828 11.8521 49.5795 12.1982 50.5175 12.5271C51.4584 12.8518 52.2071 13.3048 52.7694 13.8815C53.3288 14.4583 53.6098 15.1333 53.6098 15.9023C53.6098 17.0901 53.0304 18.0727 51.8744 18.8631C50.7183 19.6535 49.0488 20.1193 46.8657 20.2602V22.2852H44.083V20.2686C40.4427 20.0421 38.1908 18.7476 37.3216 16.3976L41.6246 15.714C42.0234 17.1924 43.343 17.9315 45.5834 17.9315C46.6303 17.9315 47.405 17.7734 47.8984 17.4572C48.3918 17.141 48.6384 16.7609 48.6384 16.3123Z" fill={activeSort.price === 'esc' ? "#9029F5" : "#fff"}/>
+                            <path d="M12.9792 67.2593V6.2664L18.7647 11.6276C19.526 12.3239 20.7439 12.3239 21.4291 11.6276C22.1903 10.9314 22.1903 9.81736 21.4291 9.19072L11.5329 0.20888C11.2284 -0.0696266 10.7716 -0.0696266 10.4671 0.20888L0.570934 9.19072C-0.190311 9.88698 -0.190311 11.001 0.570934 11.6276C1.33218 12.3239 2.55017 12.3239 3.23529 11.6276L9.02076 6.2664V67.2593C9.02076 68.2341 9.85813 69 10.9239 69C12.1419 69 12.9792 68.2341 12.9792 67.2593Z" fill="#fff"/>
+                        </svg>
+                        <span>escalating price</span>
+                    </div>
+                    <div className="market__sort-item" onClick={() => onSetActiveItem('price', 'desc')} >
+                        <svg width="20" height="20" viewBox="0 0 69 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M62.6344 20.5291V20.5334C62.9443 19.5594 63.125 18.5425 63.125 17.5V13.125C63.125 5.87891 55.2333 0 45.5 0C35.7667 0 27.875 5.87891 27.875 13.125C27.875 12.7661 27.9094 12.4157 27.9467 12.0654C24.3064 14.4666 22 17.97 22 21.875V26.25C22 30.3089 24.4785 33.9362 28.3656 36.3415C28.0557 37.3157 27.875 38.3325 27.875 39.375V43.75C27.875 45.2881 28.248 46.7536 28.902 48.125C28.248 49.4964 27.875 50.9619 27.875 52.5V56.875C27.875 64.1211 35.7667 70 45.5 70C55.2333 70 63.125 64.1211 63.125 56.875V52.5C63.125 50.9362 62.7377 49.4452 62.0665 48.0566C62.0608 48.0651 62.055 48.078 62.0492 48.0866C62.5426 47.0441 62.9299 45.959 63.0533 44.8096C66.6936 42.4041 69 38.905 69 35V30.625C69 26.5662 66.5215 22.9346 62.6344 20.5291ZM45.5 2.1875C55.0211 2.1875 61.6562 7.95102 61.6562 13.125C61.6562 18.2947 55.0211 24.0625 45.5 24.0625C35.9789 24.0625 29.3438 18.2947 29.3438 13.125C29.3438 7.95102 35.9789 2.1875 45.5 2.1875ZM23.4688 21.875C23.4688 19.32 25.0953 16.6327 27.875 14.5563V17.5C27.875 24.7461 35.7667 30.625 45.5 30.625C46.9544 30.625 48.36 30.4797 49.7112 30.2319C47.0175 31.7743 43.5952 32.8125 39.625 32.8125C30.1039 32.8125 23.4688 27.0447 23.4688 21.875ZM61.6562 52.5C61.6562 57.6696 55.0211 63.4375 45.5 63.4375C35.9789 63.4375 29.3438 57.6696 29.3438 52.5C29.3438 51.6413 29.5905 50.7697 29.9376 49.9066C29.9347 49.9023 29.929 49.8937 29.9261 49.8853C32.8837 54.0423 38.7472 56.875 45.5 56.875C52.2614 56.875 58.0963 54.021 61.0481 49.8553C61.0453 49.8596 61.0452 49.8595 61.0424 49.8638C61.4038 50.7397 61.6562 51.6242 61.6562 52.5ZM55.592 47.7319C52.8953 49.2786 49.4731 50.3125 45.5 50.3125C35.9789 50.3125 29.3438 44.5446 29.3438 39.375C29.3438 38.6315 29.5159 37.8796 29.7769 37.1362C31.217 37.8582 32.8091 38.4266 34.5103 38.8068C36.7018 44.1986 43.4203 48.125 51.375 48.125C52.8351 48.125 54.2465 47.9798 55.6033 47.7277C55.6005 47.7277 55.5977 47.7319 55.592 47.7319ZM51.375 41.5625C47.6056 41.5625 44.3181 40.6396 41.6846 39.2254C49.9665 38.499 56.507 33.5474 57.1782 27.3096C59.1776 25.9894 60.7785 24.3444 61.8083 22.4731C61.8054 22.4731 61.8054 22.4731 61.8054 22.4731C65.3625 24.6265 67.5312 27.7026 67.5312 30.625C67.5312 35.7946 60.8961 41.5625 51.375 41.5625ZM48.6384 16.3123C48.6384 15.8509 48.3916 15.4962 47.8983 15.2612C47.4049 15.022 46.3062 14.7144 44.6051 14.3469C43.0761 14.0264 41.8798 13.7059 41.0192 13.3898C40.1586 13.0737 39.4587 12.6293 38.9222 12.0653C38.3857 11.4927 38.1161 10.8262 38.1161 10.0743C38.1161 9.08305 38.5981 8.18576 39.5562 7.39115C40.5144 6.60078 42.0233 6.11789 44.083 5.93852V4.375H46.8657V5.93879C49.9753 6.16957 51.9891 7.23762 52.9042 9.16029L49.0716 10.1173C48.3229 8.80141 47.1696 8.14338 45.6035 8.14338C44.8174 8.14338 44.1863 8.28871 43.713 8.58771C43.2367 8.87824 42.9987 9.23713 42.9987 9.6559C42.9987 10.0831 43.2282 10.4079 43.6872 10.6386C44.1433 10.865 45.1273 11.1429 46.6305 11.4846C48.2828 11.8521 49.5795 12.1982 50.5175 12.5271C51.4584 12.8518 52.2071 13.3048 52.7694 13.8815C53.3288 14.4583 53.6098 15.1333 53.6098 15.9023C53.6098 17.0901 53.0304 18.0727 51.8744 18.8631C50.7183 19.6535 49.0488 20.1193 46.8657 20.2602V22.2852H44.083V20.2686C40.4427 20.0421 38.1908 18.7476 37.3216 16.3976L41.6246 15.714C42.0234 17.1924 43.343 17.9315 45.5834 17.9315C46.6303 17.9315 47.405 17.7734 47.8984 17.4572C48.3918 17.141 48.6384 16.7609 48.6384 16.3123Z" fill={activeSort.price === 'desc' ? "#9029F5" : "#fff"}/>
+                            <path d="M9.02076 1.74067L9.02076 62.7336L3.23529 57.3724C2.47405 56.6761 1.25606 56.6761 0.570935 57.3724C-0.190311 58.0686 -0.190311 59.1826 0.570935 59.8093L10.4671 68.7911C10.7716 69.0696 11.2284 69.0696 11.5329 68.7911L21.4291 59.8093C22.1903 59.113 22.1903 57.999 21.4291 57.3724C20.6678 56.6761 19.4498 56.6761 18.7647 57.3724L12.9792 62.7336L12.9792 1.74067C12.9792 0.765893 12.1419 -4.39619e-07 11.0761 -4.39619e-07C9.85813 -4.39619e-07 9.02076 0.765893 9.02076 1.74067Z" fill={activeSort.price === 'desc' ? "#9029F5" : "#fff"}/>
+                        </svg>
+                        <span>descending price</span>
+                    </div>
+                    <div className="market__sort-item" onClick={() => onSetActiveItem('name', 'esc')} >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="4 2 20 20">
+                            <path d="M8,5.70710678 L8,19.508331 C8,19.7844734 7.77614237,20.008331 7.5,20.008331 C7.22385763,20.008331 7,19.7844734 7,19.508331 L7,5.70710678 L4.85355339,7.85355339 C4.65829124,8.04881554 4.34170876,8.04881554 4.14644661,7.85355339 C3.95118446,7.65829124 3.95118446,7.34170876 4.14644661,7.14644661 L7.14644661,4.14644661 C7.34170876,3.95118446 7.65829124,3.95118446 7.85355339,4.14644661 L10.8535534,7.14644661 C11.0488155,7.34170876 11.0488155,7.65829124 10.8535534,7.85355339 C10.6582912,8.04881554 10.3417088,8.04881554 10.1464466,7.85355339 L8,5.70710678 Z M18.3229122,16.5 C18.7381226,16.8664722 19,17.4026537 19,18 C19,19.1045695 18.1045695,20 17,20 L13.5,20 C13.2238576,20 13,19.7761424 13,19.5 L13,13.5 C13,13.2238576 13.2238576,13 13.5,13 L17,13 C18.1045695,13 19,13.8954305 19,15 C19,15.5973463 18.7381226,16.1335278 18.3229122,16.5 Z M17.3333333,9 L14.6666667,9 L13.9615385,10.6923077 C13.8553299,10.9472083 13.562593,11.0677471 13.3076923,10.9615385 C13.0527917,10.8553299 12.9322529,10.562593 13.0384615,10.3076923 L15.5384615,4.30769231 C15.7094017,3.8974359 16.2905983,3.8974359 16.4615385,4.30769231 L18.9615385,10.3076923 C19.0677471,10.562593 18.9472083,10.8553299 18.6923077,10.9615385 C18.437407,11.0677471 18.1446701,10.9472083 18.0384615,10.6923077 L17.3333333,9 L17.3333333,9 Z M16.9166667,8 L16,5.8 L15.0833333,8 L16.9166667,8 Z M14,17 L14,19 L17,19 C17.5522847,19 18,18.5522847 18,18 C18,17.4477153 17.5522847,17 17,17 L14,17 Z M14,16 L17,16 C17.5522847,16 18,15.5522847 18,15 C18,14.4477153 17.5522847,14 17,14 L14,14 L14,16 Z" fill={activeSort.name === 'esc' ? "#9029F5" : "#fff"}/>
+                        </svg>
+                        <span>alphabetically</span>
+                    </div>
+                    <div className="market__sort-item" onClick={() => onSetActiveItem('name', 'desc')} >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="4 2 20 20">
+                            <path d="M7.90365714,19.8034496 C7.81268627,19.9276666 7.66576323,20.008331 7.5,20.008331 C7.33423677,20.008331 7.18731373,19.9276666 7.09634286,19.8034496 L4.14644661,16.8535534 C3.95118446,16.6582912 3.95118446,16.3417088 4.14644661,16.1464466 C4.34170876,15.9511845 4.65829124,15.9511845 4.85355339,16.1464466 L7,18.2928932 L7,4.5 C7,4.22385763 7.22385763,4 7.5,4 C7.77614237,4 8,4.22385763 8,4.5 L8,18.2928932 L10.1464466,16.1464466 C10.3417088,15.9511845 10.6582912,15.9511845 10.8535534,16.1464466 C11.0488155,16.3417088 11.0488155,16.6582912 10.8535534,16.8535534 L7.90365714,19.8034496 L7.90365714,19.8034496 Z M18.3229122,16.5 C18.7381226,16.8664722 19,17.4026537 19,18 C19,19.1045695 18.1045695,20 17,20 L13.5,20 C13.2238576,20 13,19.7761424 13,19.5 L13,13.5 C13,13.2238576 13.2238576,13 13.5,13 L17,13 C18.1045695,13 19,13.8954305 19,15 C19,15.5973463 18.7381226,16.1335278 18.3229122,16.5 Z M17.3333333,9 L14.6666667,9 L13.9615385,10.6923077 C13.8553299,10.9472083 13.562593,11.0677471 13.3076923,10.9615385 C13.0527917,10.8553299 12.9322529,10.562593 13.0384615,10.3076923 L15.5384615,4.30769231 C15.7094017,3.8974359 16.2905983,3.8974359 16.4615385,4.30769231 L18.9615385,10.3076923 C19.0677471,10.562593 18.9472083,10.8553299 18.6923077,10.9615385 C18.437407,11.0677471 18.1446701,10.9472083 18.0384615,10.6923077 L17.3333333,9 L17.3333333,9 Z M16.9166667,8 L16,5.8 L15.0833333,8 L16.9166667,8 Z M14,17 L14,19 L17,19 C17.5522847,19 18,18.5522847 18,18 C18,17.4477153 17.5522847,17 17,17 L14,17 Z M14,16 L17,16 C17.5522847,16 18,15.5522847 18,15 C18,14.4477153 17.5522847,14 17,14 L14,14 L14,16 Z" fill={activeSort.name === 'desc' ? "#9029F5" : "#fff"}/>
+                        </svg>
+                        <span>reverse alphabetically</span>
+                    </div>
+                </motion.div>
+            </div>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    initial={{ opacity: 0}}
+                    animate={{ opacity: 1}}
+                    exit={{opacity: 0}}
+                    key={marketLoadingStatus === 'loading'}
+                    className="market__catalog"
+                >
+                    {marketLoadingStatus === 'loading' ? skeletonList : totalCount === 0 ? <h1 className="nothing">Nothing found</h1> : marketItemsList}
+                </motion.div>
+            </AnimatePresence>
+            <div className="market__loading" style={{display: totalCount < 20 ? 'none' : 'block'}}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        initial={{ opacity: 0}}
+                        animate={{ opacity: 1}}
+                        exit={{opacity: 0}}
+                        key={marketLoadingStatus}
+                    >
+                        {marketLoadingStatus === 'loading' || marketLoadingStatus === 'updateLoading' ? <span className="loader"></span> : 
+                        totalCount < 20 ? '' : 
+                        <motion.div
+                            className="btnLoad btnLoad--center" 
+                            onClick={() => {dispatch(fetchMarket())}}
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        >
+                            <div className="btn"><span>Load more</span></div>
+                        </motion.div>}
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

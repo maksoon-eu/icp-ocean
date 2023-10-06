@@ -9,7 +9,7 @@ import tick from '../../resourses/img/tick.svg';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import '../../components/personBanner/personBanner.scss';
 
-const MyBanner = () => {
+const MyBanner = ({collectionLength, nftLength}) => {
     const domain = window.location.href;
     const addres = '0x7374er74r7or4y956';
     const [copySuccess, setCopySuccess] = useState(false);
@@ -23,7 +23,6 @@ const MyBanner = () => {
         setCopySuccess(true)
 
         setTimeout(() => setCopySuccess(false), 1500);
-
     }
     
     const previewFile = (e, inputImg) => {
@@ -83,11 +82,11 @@ const MyBanner = () => {
                         <div className="personBanner__user-flex">
                             <div className="personBanner__user-left">
                                 <div className="personBanner__user-gray">Items:</div>
-                                <div className="personBanner__user-white">134</div>
+                                <div className="personBanner__user-white">{nftLength}</div>
                             </div>
                             <div className="personBanner__user-right">
                                 <div className="personBanner__user-gray">Collections:</div>
-                                <div className="personBanner__user-white">134</div>
+                                <div className="personBanner__user-white">{collectionLength}</div>
                             </div>
                         </div>
                     </div>

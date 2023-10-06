@@ -1,3 +1,5 @@
+@import "../../style/style.scss";
+
 .header {
     height: 80px;
     display: flex;
@@ -33,6 +35,46 @@
     &__search {
         max-width: 350px;
         width: 100%;
+        position: relative;
+
+        &-menu {
+            background: $background-color;
+            width: 100%;
+            height: 400px;
+            position: absolute;
+            top: 53px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            border-radius: 15px;
+            border: 2px solid #D566E1;
+        }
+
+        &-list {
+            overflow-y: auto;
+            height: 375px;
+            margin-top: 10px;
+            margin-right: -2px;
+
+            & {
+                scrollbar-width: 3px;
+                scrollbar-color: $main-color $scroll-bg;
+            }
+            
+            &::-webkit-scrollbar {
+                width: 2px;
+            }
+            
+            &::-webkit-scrollbar-track {
+                background: $scroll-bg;
+                border-radius: 8px;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+                background-color: $main-color;
+                border-radius: 8px;
+            }
+        }
     }
     
     &__btn {
@@ -162,8 +204,7 @@
     &__photo {
         position: absolute;
         right: 27px;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 15px;
         cursor: pointer;
         transition: .15s linear;
 
@@ -172,10 +213,23 @@
         }
 
         &:hover {
-            transform: translateY(-12px);
-
             path {
                 fill: rgb(216, 106, 224);
+            }
+        }
+
+
+        &--none {
+            path {
+                transition: .15s linear;
+            }
+            &:hover {
+                path {
+                    fill: #D566E1;
+                }
+                path:first-of-type {
+                    fill: #fff;
+                }
             }
         }
     }
@@ -185,6 +239,82 @@
         line-height: 19px;
     
         color: #9E9EA7;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+
+        &:not(&:last-of-type) {
+            margin-bottom: 10px;
+        }
+
+        &-img {
+            border-radius: 15px;
+            overflow: hidden;
+            width: 130px;
+            height: 130px;
+            margin-right: 20px;
+            position: relative;
+
+            &:hover {
+                .search__item-hover {
+                    opacity: .3;
+                } 
+                .search__item-btn {
+                    opacity: 1;
+                }
+            }
+        }
+
+        &-hover {
+            display: block;
+    
+            background-color: #000;
+            opacity: 0;
+        
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: opacity .2s linear;
+        }
+    
+        &-btn {
+            position: absolute;
+            opacity: 0;
+            left: 10px;
+            top: 10px;
+            transition: opacity .2s linear;
+        }
+        
+        &-name {
+            font-weight: 900;
+            font-size: 18px;
+        }
+
+        &-owner {
+            font-weight: 900;
+            color: #C0C0C0;
+            transition: .15s linear;
+
+            &:hover {
+                color: #b66eff;
+                cursor: pointer;
+            }
+        }
+
+        &-price {
+            text-align: end;
+            color: #E145EF;
+            font-weight: 900;
+        }
+    }
+
+    &__nothing {
+        text-align: center;
+        margin-top: 20px;
     }
 }
 
@@ -284,7 +414,8 @@
 .wallet1 {
     transition: .15s linear;
     position: relative;
-    z-index: 2;
+    z-index: 5;
+    cursor: pointer;
 
     &:hover {
         transform: translateY(-3px);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import logo from '../../resourses/img/logo.svg';
 import instagram from '../../resourses/img/instagram.svg';
@@ -38,10 +39,16 @@ const Footer = () => {
                                 <div className="footer__form-title">Get the latest news to your email.</div>
                                 <div className="footer__form-form">
                                     <form className="search" action="/" method="post">
-                                            <input className="search__input more" type="text" placeholder="Your e-mail"
-                                            value={footerInput}
-                                            onInput={(e) => setFooterInput(e.target.value)}/>
-                                        <a className="banner__btn banner__btn--footer" href="#"><span>Send</span></a>
+                                        <input className="search__input more" type="text" placeholder="Your e-mail"
+                                        value={footerInput}
+                                        onInput={(e) => setFooterInput(e.target.value)}/>
+                                        <motion.div
+                                            className="banner__btn banner__btn--footer"
+                                            whileHover={{ scale: 1.05 }}
+                                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                        >
+                                            <span>Send</span>
+                                        </motion.div>
                                     </form>
                                 </div>
                                 <div className="footer__form-icon">

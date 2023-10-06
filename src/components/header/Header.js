@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ThemeContext } from "../theme/Theme";
 import { LoginKeyContext } from "../loginKey/LoginKey";
+import { useDispatch, useSelector } from "react-redux";
+import store from "../../store";
+import { selectAll, fetchHeader } from "./headerSlice";
 
 import logo from '../../resourses/img/logo.svg';
 import metamask from '../../resourses/img/metamask.png';
@@ -16,6 +19,7 @@ import polygon from '../../resourses/img/polygon.svg';
 import './header.scss';
 import '../../style/btn.scss'
 import 'react-lazy-load-image-component/src/effects/blur.css';
+import { CurrentContext } from "../current/Current";
 
 const WalletModal = ({walletOpened, setWalletOpened}) => {
     const [activeWallet, setActiveWallet] = useState(localStorage.getItem('wallet'));
@@ -104,11 +108,28 @@ const WalletModal = ({walletOpened, setWalletOpened}) => {
 }
 
 const BlockchainModal = ({blockchainOpened, setBlockchainOpened}) => {
-    const [activeBlockchain, setActiveBlockchain] = useState('ethereum');
+    const [activeBlockchain, setActiveBlockchain] = useState(localStorage.getItem('blockchain') ? localStorage.getItem('blockchain') : 'ethereum');
     const [error, setError] = useState(false);
+
+    const { toggleCurrent } = useContext(CurrentContext);
 
     const onActiveWallet = (blockchain) => {
         setActiveBlockchain(blockchain)
+        localStorage.setItem('blockchain', blockchain)
+
+        switch (blockchain) {
+            case 'ethereum':
+                toggleCurrent('ETH')
+                break;
+            case 'bsc':
+                toggleCurrent('BNB')
+                break;
+            case 'polygon':
+                toggleCurrent('MATIC')
+                break;
+            default:
+                break;
+        }
     }
 
     return (
@@ -191,12 +212,58 @@ const BlockchainModal = ({blockchainOpened, setBlockchainOpened}) => {
     )
 }
 
+const SearchItem = ({item, setSearchOpened, setSearchInput}) => {
+    const [fakeLoading, setFakeLoading] = useState(true);
+    const {img, name, price, owner} = item;
+
+    const { current } = useContext(CurrentContext);
+
+   useEffect(() => {
+        setTimeout(() => {
+            setFakeLoading(false)
+        }, 1000)
+   }, [])
+
+    return (
+        <div className="search__item">
+            <Link to='market/itemId' className="search__item-img" onClick={() => {setSearchOpened(false); setSearchInput('')}}>
+                <LazyLoadImage 
+                    width='100%' height='100%'
+                    placeholderSrc={loadingImg}
+                    effect="blur"
+                    src={fakeLoading ? undefined : img}
+                    alt='img'
+                />
+                <div className="search__item-hover"/>
+                <div className="search__item-btn">
+                    <div className="banner__btn banner__btn--mini"><span>Buy now</span></div>
+                </div>
+            </Link>
+            <div className="search__item-right">
+                <div className="search__item-text">
+                    <div className="search__item-name">{name}</div>
+                    <div className="search__item-owner">@{owner}</div>
+                </div>
+                <div className="search__item-price">{`${price} ${current}`}</div>
+            </div>
+        </div>
+    )
+}
+
 const Header = ({walletOpened, setWalletOpened}) => {
     const [blockchainOpened, setBlockchainOpened] = useState(false);
+    const [searchOpened, setSearchOpened] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const refWallet = useRef();
     const refBlockchain = useRef();
+    const refSearch = useRef();
+
     const { toggleTheme, theme } = useContext(ThemeContext);
+    const { loginKey } = useContext(LoginKeyContext);
+
+    const {headerLoadingStatus, totalCount} = useSelector(state => state.header);
+    const search = selectAll(store.getState());
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const clickOutElement = (e) => {
@@ -214,29 +281,113 @@ const Header = ({walletOpened, setWalletOpened}) => {
         }
     }, [walletOpened, blockchainOpened])
 
+    useEffect(() => {
+        const clickOutElement = (e) => {
+            if (searchOpened && refSearch.current && !refSearch.current.contains(e.target)) {
+                setSearchOpened(false)
+            }
+        }
+    
+        document.addEventListener("mousedown", clickOutElement)
+    
+        return function() {
+          document.removeEventListener("mousedown", clickOutElement)
+        }
+    }, [searchOpened])
+
+    useEffect(() => {
+        if (headerLoadingStatus !== 'loading') {
+            dispatch(fetchHeader(searchInput))
+        }
+    }, [searchInput])
+
+    const searchList = search.map(item => {
+        return (
+            <SearchItem item={item} key={item.id} setSearchOpened={setSearchOpened} setSearchInput={setSearchInput}/>
+        )
+    })
+
     return (
         <header className="header">
             <div className="header__inner">
                 <div className="header__logo">
                     <Link to='/' className="search__menu-item"><img src={logo} alt='logo'/></Link>
                 </div>
-                <div className="header__search">
-                    <div className="form">
+                <div className="header__search" ref={refSearch}>
+                    <div className="form" onClick={() => setSearchOpened(true)}>
                         <form className="search" action="/" method="post">
                             <input 
                                 className="search__input" type="text" value={searchInput}
-                                placeholder="Search for art" onInput={(e) => setSearchInput(e.target.value)}/>
-                            <svg className="search__photo" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                placeholder="Search for art" 
+                                onInput={(e) => setSearchInput(e.target.value)}
+                            />
+                            <motion.svg
+                                onClick={() => setSearchInput('')}
+                                width="20" height="20"
+                                viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                className="search__photo search__photo--none"
+                                initial={{ opacity: 0, y: -10 }}
+                                variants={{open: { opacity: 1, y: 0, zIndex: 3, transition: {opacity: {delay: .15}, y: {delay: .15}}}, closed: { opacity: 0, y: -10, zIndex: 1}}}
+                                animate={searchOpened ? "open" : "closed"}
+                            >
+                                <path d="M20.9839 42C16.8312 41.9968 12.7727 40.7624 9.32136 38.453C5.87007 36.1435 3.18081 32.8626 1.59386 29.0251C0.00691509 25.1876 -0.406616 20.9657 0.405506 16.8931C1.21763 12.8206 3.21902 9.08031 6.15657 6.14503C9.09411 3.20976 12.8359 1.21131 16.9091 0.402341C20.9822 -0.406634 25.2038 0.0101506 29.0401 1.60007C32.8764 3.18998 36.1553 5.88163 38.4621 9.33471C40.7689 12.7878 42 16.8473 42 21C41.9957 26.5711 39.7796 31.9124 35.8387 35.8502C31.8979 39.788 26.5549 42 20.9839 42ZM20.9839 3.24824C17.4736 3.25145 14.043 4.29534 11.1259 6.24788C8.20878 8.20042 5.93599 10.974 4.59489 14.218C3.2538 17.4619 2.90452 21.0307 3.59131 24.4731C4.2781 27.9156 5.97012 31.0771 8.45339 33.5581C10.9367 36.0391 14.0999 37.7282 17.5429 38.4118C20.986 39.0955 24.5542 38.743 27.797 37.3989C31.0398 36.0549 33.8114 33.7795 35.7612 30.8606C37.7111 27.9417 38.7517 24.5103 38.7517 21C38.7474 16.2905 36.8736 11.7753 33.5419 8.44666C30.2103 5.11803 25.6934 3.24823 20.9839 3.24824Z" fill="#D566E1"/>
+                                <path d="M14.6664 29C14.3373 29.0019 14.0151 28.9058 13.7409 28.7238C13.4666 28.5419 13.2528 28.2824 13.1266 27.9784C13.0004 27.6744 12.9676 27.3397 13.0324 27.017C13.0971 26.6943 13.2564 26.3982 13.4901 26.1665L26.1655 13.4901C26.3196 13.3348 26.5028 13.2116 26.7048 13.1274C26.9067 13.0433 27.1231 13 27.3419 13C27.5606 13 27.7771 13.0433 27.979 13.1274C28.1809 13.2116 28.3642 13.3348 28.5182 13.4901C28.8268 13.8006 29 14.2206 29 14.6583C29 15.0961 28.8268 15.5161 28.5182 15.8265L15.8264 28.5194C15.5178 28.8255 15.1011 28.9981 14.6664 29Z" fill="#fff"/>
+                                <path d="M27.3249 29C27.1057 29.0012 26.8883 28.9592 26.6854 28.8763C26.4825 28.7933 26.298 28.6711 26.1424 28.5166L13.4006 15.7506C13.1277 15.4318 12.9851 15.0217 13.0012 14.6022C13.0174 14.1828 13.1912 13.7849 13.4878 13.4881C13.7844 13.1913 14.1822 13.0174 14.6014 13.0012C15.0206 12.985 15.4305 13.1277 15.7491 13.4007L28.5074 26.1501C28.6635 26.3051 28.7873 26.4894 28.8719 26.6924C28.9565 26.8955 29 27.1134 29 27.3334C29 27.5534 28.9565 27.7712 28.8719 27.9743C28.7873 28.1774 28.6635 28.3617 28.5074 28.5166C28.3517 28.6711 28.1672 28.7933 27.9643 28.8763C27.7614 28.9592 27.5441 29.0012 27.3249 29Z" fill="#fff"/>
+                            </motion.svg>
+                            <motion.svg 
+                                className="search__photo" 
+                                width="20" height="20" 
+                                viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+                                initial={{ opacity: 0, y: 0 }}
+                                variants={{close: {opacity: 0, y: 10, zIndex: 1}, open: {opacity: 1, y: 0, zIndex: 3, transition: {opacity: {delay: .15}, y: {delay: .15}}}}}
+                                animate={searchOpened ? "close" : "open"}
+                            >
                                 <path d="M13.3566 2.28876C10.3056 -0.762268 5.33978 -0.762268 2.28875 2.28876C-0.761615 5.34045 -0.761615 10.3056 2.28875 13.3572C5.00577 16.0736 9.23739 16.3646 12.2864 14.2435C12.3506 14.5471 12.4974 14.8368 12.7335 15.0729L17.1768 19.5162C17.8243 20.1624 18.8706 20.1624 19.5148 19.5162C20.1617 18.8693 20.1617 17.823 19.5148 17.1781L15.0716 12.7335C14.8368 12.4994 14.5464 12.3519 14.2429 12.2878C16.3653 9.23806 16.0743 5.0071 13.3566 2.28876ZM11.9538 11.9544C9.6759 14.2323 5.96877 14.2323 3.69157 11.9544C1.41504 9.67657 1.41504 5.9701 3.69157 3.69224C5.96877 1.41505 9.6759 1.41505 11.9538 3.69224C14.2316 5.9701 14.2316 9.67657 11.9538 11.9544Z" fill="#5B5762"/>
-                            </svg>
+                            </motion.svg>
                         </form>
                     </div>
+                    <motion.div
+                        className="header__search-menu"
+                        variants={{
+                            open: {
+                                clipPath: "inset(0% 0% 0% 0% round 10px)",
+                                transition: {
+                                type: "spring",
+                                bounce: 0,
+                                duration: 0.4
+                                }
+                            },
+                            closed: {
+                                clipPath: "inset(10% 50% 90% 50% round 10px)",
+                                transition: {
+                                type: "spring",
+                                bounce: 0,
+                                duration: 0.4
+                                }
+                            }
+                        }}
+                        style={{ pointerEvents: searchOpened ? "auto" : "none" }}
+                        initial={false}
+                        animate={searchOpened ? "open" : "closed"}
+                    >
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                initial={{ opacity: 0}}
+                                animate={{ opacity: 1}}
+                                exit={{opacity: 0}}
+                                key={headerLoadingStatus === 'loading'}
+                                className="header__search-list"
+                            >
+                                {headerLoadingStatus === 'loading' ? <span className="loader loader--search"></span> : totalCount === 0 ? <h1 className="search__nothing">Nothing found</h1> : searchList}
+                            </motion.div>
+                        </AnimatePresence>
+                    </motion.div>
                 </div>
                 <div className="wallet1">
-                    <Link to='/market' className="btn"><span>Explore</span></Link>
+                    <NavLink to='/market' className={({ isActive }) => isActive ? "btn btn--active" : "btn"}><span>Explore</span></NavLink>
                 </div>
                 <div className="wallet1">
-                    <Link to='/create' className="btn"><span>Create</span></Link>
+                    <NavLink to={loginKey !== 'registr' ? '/login' : '/create'} className={({ isActive }) => isActive ? "btn btn--active" : "btn"}><span>Create</span></NavLink>
                 </div>
                 <div ref={refWallet} className="wallet">
                     <WalletModal walletOpened={walletOpened} setWalletOpened={setWalletOpened}/>
