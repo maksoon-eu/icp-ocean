@@ -29,42 +29,42 @@ const TabLiElement = ({item, index, type}) => {
                 localStorage.setItem('saleElementActive', JSON.stringify([item.id]));
             }
 
-            request("https://icp-ocean-api.vercel.app/userSale", "POST", JSON.stringify(item))
-                .then(dispatch(saleCreated(item)))
-                .catch(err => console.log(err))
+            // request("https://icp-ocean-api.vercel.app/userSale", "POST", JSON.stringify(item))
+            //     .then(dispatch(saleCreated(item)))
+            //     .catch(err => console.log(err))
         } else {
             localStorage.setItem('saleElementActive', JSON.stringify(JSON.parse(localStorage.getItem('saleElementActive')).filter(el => el !== item.id)));
-            request(`https://icp-ocean-api.vercel.app/userSale/${item.id}`, "DELETE")
-                .then(dispatch(saleDeleted(item.id)))
-                .catch((err) => console.log(err));
+            // request(`https://icp-ocean-api.vercel.app/userSale/${item.id}`, "DELETE")
+            //     .then(dispatch(saleDeleted(item.id)))
+            //     .catch((err) => console.log(err));
         }
 
         setSaleToggle(saleToggle => !saleToggle)
     }
 
     const onNftDelete = useCallback((id) => {
-        request(`https://icp-ocean-api.vercel.app/userNft/${id}`, "DELETE")
-            .then(dispatch(nftDeleted(id)))
-            .catch((err) => console.log(err));
+        // request(`https://icp-ocean-api.vercel.app/userNft/${id}`, "DELETE")
+        //     .then(dispatch(nftDeleted(id)))
+        //     .catch((err) => console.log(err));
 
-        if (saleToggle) {
-            request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
-                .then(dispatch(saleDeleted(id)))
-                .catch((err) => console.log(err));
-        }
+        // if (saleToggle) {
+            // request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
+            //     .then(dispatch(saleDeleted(id)))
+            //     .catch((err) => console.log(err));
+        // }
         // eslint-disable-next-line
 	}, [request]);
 
     const onCollectionDelete = useCallback((id) => {
-        request(`https://icp-ocean-api.vercel.app/userCollection/${id}`, "DELETE")
-            .then(dispatch(collectionDeleted(id)))
-            .catch((err) => console.log(err));
+        // request(`https://icp-ocean-api.vercel.app/userCollection/${id}`, "DELETE")
+        //     .then(dispatch(collectionDeleted(id)))
+        //     .catch((err) => console.log(err));
 
-        if (saleToggle) {
-            request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
-                .then(dispatch(saleDeleted(id)))
-                .catch((err) => console.log(err));
-        }
+        // if (saleToggle) {
+        //     request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
+        //         .then(dispatch(saleDeleted(id)))
+        //         .catch((err) => console.log(err));
+        // }
         // eslint-disable-next-line
 	}, [request]);
 
@@ -409,9 +409,9 @@ const ThirdTab = () => {
 
     const onDelete = useCallback((id) => {
         localStorage.setItem('saleElementActive', JSON.stringify(JSON.parse(localStorage.getItem('saleElementActive')).filter(el => el !== id)));
-        request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
-            .then(dispatch(saleDeleted(id)))
-            .catch((err) => console.log(err));
+        // request(`https://icp-ocean-api.vercel.app/userSale/${id}`, "DELETE")
+        //     .then(dispatch(saleDeleted(id)))
+        //     .catch((err) => console.log(err));
         // eslint-disable-next-line
 	}, [request]);
 

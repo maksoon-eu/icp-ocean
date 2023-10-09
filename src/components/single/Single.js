@@ -89,17 +89,17 @@ const Single = () => {
     }
 
     const sendingNft = () => {
-        const newNft = {
-            id: uuidv4(),
-            img: refPhoto.current.src,
-            name: inputs[0],
-            describe: inputs[1],
-            price: inputs[2]
-        }
+        // const newNft = {
+        //     id: uuidv4(),
+        //     img: refPhoto.current.src,
+        //     name: inputs[0],
+        //     describe: inputs[1],
+        //     price: inputs[2]
+        // }
 
-        request("https://icp-ocean-api.vercel.app/userNft", "POST", JSON.stringify(newNft))
-            .then(dispatch(itemCreated(newNft)))
-            .catch(err => console.log(err))
+        // request("https://icp-ocean-api.vercel.app/userNft", "POST", JSON.stringify(newNft))
+        //     .then(dispatch(itemCreated(newNft)))
+        //     .catch(err => console.log(err))
     }
 
     return (

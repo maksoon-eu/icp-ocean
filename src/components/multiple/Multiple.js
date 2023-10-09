@@ -72,18 +72,18 @@ const Multiple = () => {
     }
 
     const sendingCollection = () => {
-        const newCollection = {
-            id: uuidv4(),
-            img: refPhoto.current.src,
-            name: inputs[0],
-            describe: inputs[1],
-            copies: inputs[3],
-            price: inputs[2]
-        }
+        // const newCollection = {
+        //     id: uuidv4(),
+        //     img: refPhoto.current.src,
+        //     name: inputs[0],
+        //     describe: inputs[1],
+        //     copies: inputs[3],
+        //     price: inputs[2]
+        // }
 
-        request("https://icp-ocean-api.vercel.app/userCollection", "POST", JSON.stringify(newCollection))
-            .then(dispatch(itemCreated(newCollection)))
-            .catch(err => console.log(err))
+        // request("https://icp-ocean-api.vercel.app/userCollection", "POST", JSON.stringify(newCollection))
+        //     .then(dispatch(itemCreated(newCollection)))
+        //     .catch(err => console.log(err))
     }
 
     const previewFile = (e, inputImg) => {
