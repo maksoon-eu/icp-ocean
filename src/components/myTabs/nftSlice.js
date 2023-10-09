@@ -28,7 +28,7 @@ export const fetchUserNft = createAsyncThunk(
             }
         })
 
-        return await request(`http://localhost:3001/userNft${filterRequest}`);
+        return await request(`https://icp-ocean-api.vercel.app/userNft${filterRequest}`);
     }
 )
 

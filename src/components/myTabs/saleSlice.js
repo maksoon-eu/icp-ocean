@@ -28,7 +28,7 @@ export const fetchUserSale = createAsyncThunk(
             }
         })
 
-        return await request(`http://localhost:3001/userSale${filterRequest}`);
+        return await request(`https://icp-ocean-api.vercel.app/userSale${filterRequest}`);
     }
 )
 

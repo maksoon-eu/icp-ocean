@@ -12,7 +12,7 @@ export const fetchHeader = createAsyncThunk(
     'header/fetchHeader',
     async (name) => {
         const {request} = useHttp();
-        return await request(`http://localhost:3001/market?_limit=10&q=${name}`)
+        return await request(`https://icp-ocean-api.vercel.app/market?_limit=10&q=${name}`)
     }
 )
 

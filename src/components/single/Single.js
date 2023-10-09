@@ -97,7 +97,7 @@ const Single = () => {
             price: inputs[2]
         }
 
-        request("http://localhost:3001/userNft", "POST", JSON.stringify(newNft))
+        request("https://icp-ocean-api.vercel.app/userNft", "POST", JSON.stringify(newNft))
             .then(dispatch(itemCreated(newNft)))
             .catch(err => console.log(err))
     }

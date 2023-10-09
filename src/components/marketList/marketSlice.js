@@ -44,7 +44,7 @@ export const fetchMarket = createAsyncThunk(
             }
         })
 
-        return await request(`http://localhost:3001/market?_page=${state.market.page}&_limit=20${filterRequest}`);
+        return await request(`https://icp-ocean-api.vercel.app/market?_page=${state.market.page}&_limit=20${filterRequest}`);
     }
 )
 

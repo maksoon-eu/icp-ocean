@@ -81,7 +81,7 @@ const Multiple = () => {
             price: inputs[2]
         }
 
-        request("http://localhost:3001/userCollection", "POST", JSON.stringify(newCollection))
+        request("https://icp-ocean-api.vercel.app/userCollection", "POST", JSON.stringify(newCollection))
             .then(dispatch(itemCreated(newCollection)))
             .catch(err => console.log(err))
     }

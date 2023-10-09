@@ -24,7 +24,7 @@
     "webfontloader": "^1.6.28"
   },
   "scripts": {
-    "start": "concurrently \"react-scripts start\" \"npx json-server nfts.json --port 3001\"",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

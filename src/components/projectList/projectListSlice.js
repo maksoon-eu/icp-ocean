@@ -15,7 +15,7 @@ export const fetchProjectList = createAsyncThunk(
         const state = getState();
 
         const {request} = useHttp();
-        return await request(`http://localhost:3001/projectList?_page=${state.projectList.page}&_limit=6`);
+        return await request(`https://icp-ocean-api.vercel.app/projectList?_page=${state.projectList.page}&_limit=6`);
     }
 )
 

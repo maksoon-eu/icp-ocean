@@ -11,7 +11,7 @@ export const fetchProjects = createAsyncThunk(
     'projects/fetchProject',
     async () => {
         const {request} = useHttp()
-        return await request('http://localhost:3001/projectSlider');
+        return await request('https://icp-ocean-api.vercel.app/projectSlider');
     }
 )
 
